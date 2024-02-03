@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import Home from './screens/home';
 import Search from './screens/search';
+import { registerRootComponent } from 'expo';
 
 const Stack = createStackNavigator();
 
@@ -17,4 +18,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default registerRootComponent(App);

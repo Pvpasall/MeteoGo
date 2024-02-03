@@ -1,68 +1,75 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React from "react";
+import { View, TextInput } from "react-native";
 
-const Search = ({ navigation }) => {
-    const [city, setCity] = useState('');
+const SearchWeather = ({
+  weather,
+  toggleSearch,
+  setToggleSearch,
+  city,
+  fetchDataWeather,
+  fectchTownLongAndLat
+}) => {
+  const handleSubmit = (e) => {
+    if (toggleSearch === "city") {
+        fetchDataWeather();
+        fectchTownLongAndLat();
+    }
+    if (toggleSearch === "postal") {
+      fetchByPostalHandler();
+    }
+  };
 
-    const handleSearch = () => {
-        // Ajoutez la logique de recherche ici
-        // Par exemple, naviguer vers la page de détails avec la ville sélectionnée
-        navigation.navigate('Details', { city });
-    };
+  const setToggleByCity = () => {
+    setToggleSearch("city");
+  };
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Rechercher d'une localité</Text>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Nom de la localité"
-                    value={city}
-                    onChangeText={(text) => setCity(text)}
-                    autoFocus={true}
-                />
-                <TouchableOpacity onPress={handleSearch} style={styles.searchIconContainer}>
-                    <Icon name="search" size={20} color="white" />
-                </TouchableOpacity>
-            </View>
+  return (
+    <Container style={styles.mainContainer}>
+      <View style={styles.container}>
+        <ButtonLabel>Search By</ButtonLabel>
+        <Buttons
+          title="City"
+          color={toggleSearch === "city" ? "white" : "rgba(255, 255, 255, 0.6)"}
+          accessibilityLabel="Chercher par ville"
+          onPress={setToggleByCity}
+          onSubmitEditing={handleSubmit}
+        />
+      </View>
+       <View>
+            <Text style={styles.weatherText}>Localisation: {city}: timezone : {weather.timezone}</Text>
+            <Text style={styles.weatherText}>{weather.current.temp} °C | {weather.current.weather[0].description}</Text>
         </View>
-    );
+    </Container>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#625FAB',
-        alignItems: 'center',
-        justifyContent: 'top',
-        padding: 20,
+    container:{
+        display: flex,
+        flexDirection: row,
+        color: white,
+        marginTop: 10,
+        alignItems: center,
+        justifyContent: flex-start,
+        width: 95,
+        maxWidth: 700,
     },
-    title: {
-        alignItems: 'center',
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#fff',
-        marginBottom: 20,
+    searchBar :{
+        height: 50,
+        margin: 12,
+        backgroundColor: white,
+        padding: 15,
+        borderRadius: 10,
+        width: 95,
+        maxWidth: 700,
     },
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'left',
-        width: '100%',
-    },
-    input: {
-        height: 40,
-        width: '90%',
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 20,
-        paddingLeft: 10,
-        backgroundColor: '#fff',
-        borderRadius: 5,
-    },
-    searchIconContainer: {
-        margin: 10,
-    },
+    mainContainer:{
+        display: flex,
+        justifyContent: center,
+        alignItems: center,
+        marginTop: 35
+    }
 });
 
-export default Search;
+
+export default SearchWeather;

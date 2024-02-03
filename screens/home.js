@@ -1,41 +1,73 @@
 import React from 'react';
 import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
+import SearchWeather from './search';
 
 const Home = ({ navigation }) => {
-    const weatherData = {
-        temp: 25,
-        description: 'Ensoleillé',
-        country: "Paris"
-    };
+    const WEATHER_API_KEY = process.env.WEATHER_API_KEY
+    const [city, setCity] = useState('Paris');
+    const [weather, setWeather] = useState({});
+    const [toggleSearch, setToggleSearch] = useState("city");
+    const [lat, setLat] = useState(48.866667);
+    const [long, setLong] = useState(2.333333);
 
-    const favoriteLocations = [
-        { name: 'Paris', temperature: 20, description: 'Nuageux' },
-        { name: 'New York', temperature: 28, description: 'Ensoleillé' },
-        { name: 'Tokyo', temperature: 24, description: 'Pluvieux' },
-    ];
+    const controller = new AbortController();
+    const signal = controller.signal;
 
-    const renderItem = ({ item }) => (
-        <View style={styles.favoriteItem}>
-            <Text style={styles.favoriteText}>{item.name}</Text>
-            <Text style={styles.favoriteText}>{item.temperature} °C | {item.description}</Text>
-        </View>
-    );
+    const fetchDataWeather = () => {
+        fetch(
+          `http://api.openweathermap.org/data/2.5/weather?q=${city}&APPID=${WEATHER_API_KEY}`
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setLat(data.coord.lat);
+            setLong(data.coord.lon);
+          });
+      };
+
+    const fectchTownLongAndLat = () => {
+        fetch(
+            `https://api-adresse.data.gouv.fr/search/?q=${city}&autocomplete=0`
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              setLat(data.features[0].geometry.coordinates[0]);
+              setLong(data.features[0].geometry.coordinates[1]);
+            });
+    }
+
+     //updates the weather when lat long changes
+    useEffect(() => {
+        fetch(
+        `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${long}&exclude=hourly,minutely&units=metric&appid=${WEATHER_API_KEY}`,
+        { signal }
+        )
+        .then((res) => res.json())
+        .then((data) => {
+            setWeather(data);
+        })
+        .catch((err) => {
+            console.log("error", err);
+        });
+        return () => controller.abort();
+    }, [lat, long]);
 
     return (
         <>
             <View style={styles.container}>
+                <SearchWeather
+                  weather={weather}
+                  city={city}
+                  fetchDataWeather={fetchDataWeather}
+                  fectchTownLongAndLat={fectchTownLongAndLat}
+                  toggleSearch={toggleSearch}
+                  setToggleSearch={setToggleSearch}
+                />
                 <Button title="Rechercher une Localité" onPress={() => navigation.navigate('Search')} />
                 <Text style={styles.title}>Météo en Direct</Text>
                 <View style={styles.weatherContainer}>
-                    <Text style={styles.weatherText}>Localisation: {weatherData.country}</Text>
-                    <Text style={styles.weatherText}>{weatherData.temp} °C | {weatherData.description}</Text>
+                    <Text style={styles.weatherText}>Localisation: {city}: timezone : {weather.timezone}</Text>
+                    <Text style={styles.weatherText}>{weather.current.temp} °C | {weather.current.weather[0].description}</Text>
                 </View>
-                <Text style={styles.favoritesTitle}>Localisations Favorites</Text>
-                <FlatList
-                    data={favoriteLocations}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => item.name}
-                />
             </View>
         </>
     );
