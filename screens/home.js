@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
 
-const Home = () => {
+const Home = ({ navigation }) => {
     const weatherData = {
         temp: 25,
         description: 'Ensoleillé',
