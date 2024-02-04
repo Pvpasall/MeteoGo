@@ -88,15 +88,13 @@ const Home = ({ navigation }) => {
                 console.error('Error fetching weather data:', error);
             });
 
-        // Fetch favorite locations data
         axios.get('https://api-adresse.data.gouv.fr/search/?q=Paris&autocomplete=0')
             .then(response => {
                 const coordinates = response.data.features[0].geometry.coordinates;
                 setFavoriteLocations([
-                    { name: 'Paris', temperature: 20, description: 'Nuageux' },
-                    { name: 'New York', temperature: 28, description: 'Ensoleillé' },
-                    { name: 'Tokyo', temperature: 24, description: 'Pluvieux' },
-                    // Add more locations based on the API response
+                    { name: 'Paris', temperature: 20, description: 'Nuageux', icon: '04d' },
+                    { name: 'New York', temperature: 28, description: 'Ensoleillé', icon: '01d' },
+                    { name: 'Tokyo', temperature: 24, description: 'Pluvieux', icon: '10n' },
                 ]);
             })
             .catch(error => {
@@ -106,6 +104,7 @@ const Home = ({ navigation }) => {
 
     const renderItem = ({ item }) => (
         <View style={styles.favoriteItem}>
+            <WeatherIcon style={styles.weatherIcon} icon={iconMappings[weatherData.icon]} />
             <Text style={styles.favoriteText}>{item.name}</Text>
             <Text style={styles.favoriteText}>{item.temperature} °C | {item.description}</Text>
         </View>

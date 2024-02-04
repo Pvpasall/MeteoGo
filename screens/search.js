@@ -4,11 +4,38 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const Search = ({ navigation }) => {
     const [city, setCity] = useState('');
+    const [weather, setWeather] = useState({});
+    const [latitude, setLatitude] = useState(0.0);
+    const [longitude, setLongitude] = useState(0.0);
+    const WEATHER_API_KEY = "736176e0d56b977e2818632d7e0a2864";
 
     const handleSearch = () => {
-        // Ajoutez la logique de recherche ici
-        // Par exemple, naviguer vers la page de détails avec la ville sélectionnée
-        navigation.navigate('Details', { city });
+        fetchDataWeather();
+    };
+
+    const fetchDataWeather = () => {
+        fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}`)
+            .then(response => response.json())
+            .then(data => {
+                setLatitude(data.coord.lat);
+                setLongitude(data.coord.lon);
+
+                fetchWeatherData();
+            })
+            .catch(error => {
+                console.error('Error fetching weather data:', error);
+            });
+    };
+
+    const fetchWeatherData = () => {
+        fetch(`https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=hourly,minutely&units=metric&appid=${WEATHER_API_KEY}`)
+            .then(response => response.json())
+            .then(data => {
+                setWeather(data);
+            })
+            .catch(error => {
+                console.error('Error fetching weather data:', error);
+            });
     };
 
     return (
