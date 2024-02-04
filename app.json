@@ -1,5 +1,6 @@
 {
   "expo": {
+    "entrypoint":"./App.js",
     "name": "MeteoGo",
     "slug": "MeteoGo",
     "version": "1.0.0",
