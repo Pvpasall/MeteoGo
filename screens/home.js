@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, StyleSheet } from 'react-native';
 import axios from 'axios';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import * as Location from 'expo-location';
 
+// Avoir l'icon correspondant au meteo
 const iconMappings = {
     '01d': 'sun-o',
     '02d': 'cloud',
@@ -23,15 +25,40 @@ const iconMappings = {
     '13n': 'snowflake-o',
     '50n': 'align-justify',
 };
+
+// Composant pour afficher l'icone
 const WeatherIcon = ({ icon }) => {
 
     return <Icon name={icon} size={50} color="white" />;
 };
+
+
 const Home = ({ navigation }) => {
     const [weatherData, setWeatherData] = useState({});
     const [favoriteLocations, setFavoriteLocations] = useState([]);
+    const [location, setLocation] = useState(null);
+    const [errorMsg, setErrorMsg] = useState(null);
     const WEATHER_API_KEY = "736176e0d56b977e2818632d7e0a2864"
 
+
+    // recuperer localisation en direct
+    const getLocationAsync = async () => {
+        try {
+            let { status } = await Location.requestForegroundPermissionsAsync();
+            if (status !== 'granted') {
+                setErrorMsg('Permission to access location was denied');
+                return;
+            }
+
+            let location = await Location.getCurrentPositionAsync({});
+            setLocation(location);
+        } catch (error) {
+            console.error('Error getting location:', error);
+            setErrorMsg('Error getting location');
+        }
+    };
+
+    // traduire les description en francais
     const traductionDescriptions = {
         'Clear': 'Dégagé',
         'Clouds': 'Nuageux',
@@ -40,8 +67,12 @@ const Home = ({ navigation }) => {
         'Thunderstorm': 'Orage',
     };
 
+    // Afficher localisation en direct et favoris  
     useEffect(() => {
-        axios.get(`http://api.openweathermap.org/data/2.5/weather?q=Paris&appid=${WEATHER_API_KEY}`)
+
+        getLocationAsync();
+
+        axios.get(`http://api.openweathermap.org/data/2.5/weather?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${WEATHER_API_KEY}`)
             .then(response => {
                 const temperatureCelsius = Math.floor(response.data.main.temp - 273.15);
                 const descriptionEnAnglais = response.data.weather[0].main;
