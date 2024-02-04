@@ -10,10 +10,10 @@ const Search = ({ navigation }) => {
     const WEATHER_API_KEY = "736176e0d56b977e2818632d7e0a2864";
 
     const handleSearch = () => {
-        fetchDataWeather();
+        fetchDataWeatherMap();
     };
 
-    const fetchDataWeather = () => {
+    const fetchDataWeatherMap = () => {
         fetch(`http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${WEATHER_API_KEY}`)
             .then(response => response.json())
             .then(data => {
@@ -52,6 +52,10 @@ const Search = ({ navigation }) => {
                 <TouchableOpacity onPress={handleSearch} style={styles.searchIconContainer}>
                     <Icon name="search" size={20} color="white" />
                 </TouchableOpacity>
+                <View>
+                    <Text>Localisation: {city}: timezone : {weather.timezone}</Text>
+                    <Text>{weather.current.temp} °C | {weather.current.weather[0].description}</Text>
+                </View>
             </View>
         </View>
     );
